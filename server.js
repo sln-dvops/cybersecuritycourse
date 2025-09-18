@@ -4,16 +4,17 @@ const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
 
-// Allow all origins (simple dev/test)
-app.use(cors());
+const app = express(); // <-- must come first!
+
+// Allow all origins (for dev/test)
+// app.use(cors());
 
 // OR allow only your Netlify domain (recommended for production)
 app.use(cors({
   origin: "https://cybersecurity-course-gurusoftpteltd.netlify.app"
 }));
 
-
-const app = express();
+app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 3000;
 
@@ -26,7 +27,6 @@ app.post("/submit-form", async (req, res) => {
   }
 
   try {
-    // Configure Nodemailer (Gmail)
     let transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -50,7 +50,7 @@ Thank you once again for your commitment to cybersecurity.
 Best Regards,
 Gurusoft Pte Ltd (HR)
 
-(This is a system generated email, please do not reply to this message.)`,
+(This is a system generated email, please do not reply to this message.)`,
     };
 
     await transporter.sendMail(mailOptions);
