@@ -3,18 +3,19 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const nodemailer = require("nodemailer");
 const cors = require("cors");
+const path = require("path");
 
-const app = express(); // <-- must come first!
+const app = express();
 
-// Allow all origins (for dev/test)
-// app.use(cors());
-
-// OR allow only your Netlify domain (recommended for production)
+// CORS setup
 app.use(cors({
-  origin: "https://cybersecurity-course-gurusoftpteltd.netlify.app"
+  origin: ""
 }));
 
 app.use(bodyParser.json());
+
+// Serve static frontend
+app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 
@@ -61,7 +62,14 @@ Gurusoft Pte Ltd (HR)
     res.status(500).json({ error: "Failed to send email." });
   }
 });
+// POST /submit-form ... (your email route above)
+
+// fallback: serve frontend for all other routes
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });
+
