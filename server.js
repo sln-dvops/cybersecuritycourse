@@ -28,19 +28,22 @@ app.post("/submit-form", async (req, res) => {
   }
 
   try {
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-      },
-    });
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",          // Gmail SMTP host
+    port: 465,                       // SSL port
+    secure: true,                    // true for 465
+    auth: {
+      user: process.env.GMAIL_USER,  // your Gmail
+      pass: process.env.GMAIL_PASS   // app password
+    },
+    tls: { rejectUnauthorized: false } // allow self-signed certs
+  });
 
-    let mailOptions = {
-      from: `"Gurusoft Pte Ltd" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: "Confirmation of Cybersecurity Training Completion",
-      text: `Dear ${name},
+  const mailOptions = {
+    from: `"Gurusoft Pte Ltd" <${process.env.GMAIL_USER}>`,
+    to: email,
+    subject: "Confirmation of Cybersecurity Training Completion",
+    text: `Dear ${name},
 
 Congratulations! This email confirms that you have successfully completed the Gurusoft Cybersecurity Training.
 
@@ -51,16 +54,17 @@ Thank you once again for your commitment to cybersecurity.
 Best Regards,
 Gurusoft Pte Ltd (HR)
 
-(This is a system generated email, please do not reply to this message.)`,
-    };
+(This is a system generated email, please do not reply to this message.)`
+  };
 
-    await transporter.sendMail(mailOptions);
+  await transporter.sendMail(mailOptions);
 
-    res.json({ success: true, message: "Form submitted successfully!" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to send email." });
-  }
+  res.json({ success: true, message: "Form submitted successfully!" });
+
+} catch (err) {
+  console.error(err);
+  res.status(500).json({ error: "Failed to send email." });
+}
 });
 // POST /submit-form ... (your email route above)
 
