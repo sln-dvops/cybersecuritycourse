@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const nodemailer = require("nodemailer");
 const cors = require("cors");
 const path = require("path");
+const sgMail = require('@sendgrid/mail'); // <-- SendGrid
 
 const app = express();
 
@@ -19,6 +19,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const PORT = process.env.PORT || 3000;
 
+// Set SendGrid API key
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 // POST route for form submission
 app.post("/submit-form", async (req, res) => {
   const { name, company, email, message } = req.body;
@@ -27,23 +30,7 @@ app.post("/submit-form", async (req, res) => {
     return res.status(400).json({ error: "Please complete all fields." });
   }
 
-  try {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",          // Gmail SMTP host
-    port: 465,                       // SSL port
-    secure: true,                    // true for 465
-    auth: {
-      user: process.env.GMAIL_USER,  // your Gmail
-      pass: process.env.GMAIL_PASS   // app password
-    },
-    tls: { rejectUnauthorized: false } // allow self-signed certs
-  });
-
-  const mailOptions = {
-    from: `"Gurusoft Pte Ltd" <${process.env.GMAIL_USER}>`,
-    to: email,
-    subject: "Confirmation of Cybersecurity Training Completion",
-    text: `Dear ${name},
+  const text = `Dear ${name},
 
 Congratulations! This email confirms that you have successfully completed the Gurusoft Cybersecurity Training.
 
@@ -54,21 +41,25 @@ Thank you once again for your commitment to cybersecurity.
 Best Regards,
 Gurusoft Pte Ltd (HR)
 
-(This is a system generated email, please do not reply to this message.)`
+(This is a system generated email, please do not reply to this message.)`;
+
+  const msg = {
+    to: email,
+    from: process.env.SENDGRID_FROM, // verified sender
+    subject: "Confirmation of Cybersecurity Training Completion",
+    text
   };
 
-  await transporter.sendMail(mailOptions);
-
-  res.json({ success: true, message: "Form submitted successfully!" });
-
-} catch (err) {
-  console.error(err);
-  res.status(500).json({ error: "Failed to send email." });
-}
+  try {
+    await sgMail.send(msg);
+    res.json({ success: true, message: "Form submitted successfully!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send email." });
+  }
 });
-// POST /submit-form ... (your email route above)
 
-// fallback: serve frontend for all other routes
+// Fallback: serve frontend for all other routes
 app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -76,4 +67,3 @@ app.get(/.*/, (req, res) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });
-
