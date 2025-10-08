@@ -302,3 +302,42 @@ input:focus {
   background: #e6f0ff;
 }
 
+.cyber-list-section {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.cyber-list-section h2 {
+  font-size: 28px;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 30px;
+  border-left: 4px solid #1e3a8a; /* navy blue line */
+}
+
+.timeline-item {
+  position: relative;
+  background-color: #c7d6fe;
+  color: black;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -13px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  background-color: #1e3a8a;
+  border: 2px solid white;
+  border-radius: 50%;
+}
